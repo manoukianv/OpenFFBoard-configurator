@@ -54,6 +54,7 @@ import effects_graph_ui
 import updater
 import simplemotion_ui
 import activetasks
+import wheel
 
 # This GUIs version
 VERSION = "1.15.2"
@@ -448,7 +449,7 @@ class MainUi(PyQt6.QtWidgets.QMainWindow, base_ui.WidgetUI, base_ui.Communicatio
                 if name in self.active_classes:
                     continue
                 classname = classe_active["name"]
-                if classe_active["id"] == 1 or classe_active["id"] == 2 or classe_active["id"] == 3:
+                if classe_active["id"] == 1 or classe_active["id"] == 2 or classe_active["id"] == 3:                        
                     self.main_class_ui = ffb_ui.FfbUI(main=self, title=classname)
                     self.active_classes[name] = self.main_class_ui
                     self.profile_ui.set_save_btn(True)
@@ -460,6 +461,13 @@ class MainUi(PyQt6.QtWidgets.QMainWindow, base_ui.WidgetUI, base_ui.Communicatio
                     self.tab_connections.append(self.serialchooser.shown.connect(lambda : self.wrapper_status_bar.update_ffb_block_display(False)))
                     self.tab_connections.append(self.serialchooser.hidden.connect(lambda : self.wrapper_status_bar.update_ffb_block_display(True)))
                     self.wrapper_status_bar.update_ffb_block_display(True)
+                    
+                    if classe_active["id"] == 1 :
+                        tab_pos = self.tabWidget_main.currentIndex()
+                        classe = wheel.WheelUI (main=self, unique=classe_active["unique"])
+                        position = self.tabWidget_main.insertTab(tab_pos, classe, "SimWheel Summary")
+                        self.select_tab(position)
+                    
                     
                 elif classe_active["id"] == 0xA01:
                     classe = axis_ui.AxisUI(main=self, unique=classe_active["unique"])
