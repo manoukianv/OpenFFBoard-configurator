@@ -75,7 +75,7 @@ class WheelUI(WidgetUI,CommunicationHandler):
     
     # Tab is currently shown
     def showEvent(self,event):
-        self.init_ui() # update everything
+        self.init_ui() # Refresh data in UI
         self.timer.start(500)
 
     # Tab is hidden
@@ -99,13 +99,6 @@ class WheelUI(WidgetUI,CommunicationHandler):
     def sliderChanged_UpdateSpinbox(self, val : int, spinbox : QSpinBox, factor :float, cls : str=None, command : str=None):
         """when a slider move, and it provide a command, the slider update de spinbox
         and send to the board the Value
-
-        Args:
-            val (int): new value of the slider
-            spinbox (QtSpinbox): the spinbox to refresh
-            factor (float): the scale factor between slider and spinbox
-            cls (string): name of the class to send the command (on the board)
-            command (string, optional): the command to send to the board. Defaults to None.
         """
         newVal = val * factor
         if(spinbox.value() != newVal):
@@ -127,15 +120,8 @@ class WheelUI(WidgetUI,CommunicationHandler):
         
     @throttle(50)
     def sliderChanged_UpdateLabel(self, val : int, label : QLabel, pattern :str, factor: float, cls : str=None, command : str=None):
-        """when a slider move, and it provide a command, the slider update de spinbox
+        """when a slider move, and it provide a command, the slider update de label using the pattern
         and send to the board the Value
-
-        Args:
-            val (int): new value of the slider
-            spinbox (QtSpinbox): the spinbox to refresh
-            factor (float): the scale factor between slider and spinbox
-            cls (string): name of the class to send the command (on the board)
-            command (string, optional): the command to send to the board. Defaults to None.
         """
         newVal = val * factor
         chaine = pattern.format(newVal)
