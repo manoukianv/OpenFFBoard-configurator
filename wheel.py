@@ -15,37 +15,30 @@ class WheelUI(WidgetUI,CommunicationHandler):
         WidgetUI.__init__(self, main, 'wheel.ui')
         CommunicationHandler.__init__(self)
 
-        self.main = main
-        self.adc_to_amps = 0.0
-        self.max_power = 0
+
         self.cpr = -1
-
-        self.driver_classes = {}
-        self.driver_ids = []
-
-        self.encoder_classes = {}
-        self.encoder_ids = []
-
-        self.driver_id = 0
-        self.encoder_id = 0
-
-        self.encoder_widgets = {}
-        self.wheel = unique
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_cb)
         
-        self.register_callback("axis","pos",self.enc_pos_cb,self.wheel,int)
-        self.register_callback("axis","cpr",self.cpr_cb,self.wheel,int)
 
         ### Event management with board message
         # General FFB Section
         self.horizontalSlider_fxratio.valueChanged.connect(lambda val : self.sliderChanged_UpdateLabel(val,self.label_fxratio,"{:2.2f}%",1/255,"axis","fxratio"))
         self.horizontalSlider_degrees.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val,self.spinBox_range,1,"axis","degrees"))
-        self.spinBox_range.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.spinBox_range,1,"axis","degrees"))
-        """
+        self.spinBox_range.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.spinBox_range,1))
+        
         # Mechanical section
-        self.horizontalSlider_idle.valueChanged.connect(lambda val : self.send_value("axis","idlespring",(val),instance=self.axis))
+        self.horizontalSlider_idle.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val, self.spinBox_idlespring,1,"axis","idlespring"))
+        self.spinBox_idlespring.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.horizontalSlider_idle,1,))
+        self.horizontalSlider_perma_damper.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val, self.spinBox_perma_damper,1,"axis","axisdamper"))
+        self.spinBox_perma_damper.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.horizontalSlider_perma_damper,1))
+        self.horizontalSlider_perma_inertia.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val, self.spinBox_perma_inertia,1,"axis","axisinertia"))
+        self.spinBox_perma_inertia.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.horizontalSlider_perma_inertia,1))
+        self.horizontalSlider_perma_friction.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val, self.spinBox_perma_friction,1,"axis","axisfriction"))
+        self.spinBox_perma_friction.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val,self.horizontalSlider_perma_friction,1))
+        
+        """
         self.horizontalSlider_damper.valueChanged.connect(lambda val : self.send_value("axis","axisdamper",val,instance=self.axis))
         self.horizontalSlider_friction.valueChanged.connect(lambda val : self.send_value("axis","axisfriction",val,instance=self.axis))
         self.horizontalSlider_inertia.valueChanged.connect(lambda val : self.send_value("axis","axisinertia",val,instance=self.axis))
@@ -63,11 +56,18 @@ class WheelUI(WidgetUI,CommunicationHandler):
         self.register_callback("axis","fxratio",lambda val : self.dataChanged_UpdateSliderAndLabel(val,self.horizontalSlider_fxratio, self.label_fxratio, "{:2.2%}", 1/255),0,int)
         self.register_callback("axis","degrees",lambda val : self.dataChanged_UpdateSliderAndSpinbox(val,self.horizontalSlider_degrees,self.spinBox_range,1),0,int)
         
+        self.register_callback("axis","idlespring",lambda val : self.dataChanged_UpdateSliderAndSpinbox(val,self.horizontalSlider_idle,self.spinBox_idlespring,1),0,int)
+        self.register_callback("axis","axisdamper",lambda val : self.dataChanged_UpdateSliderAndSpinbox(val,self.horizontalSlider_perma_damper,self.spinBox_perma_damper,1),0,int)
+        self.register_callback("axis","axisinertia",lambda val : self.dataChanged_UpdateSliderAndSpinbox(val,self.horizontalSlider_perma_inertia,self.spinBox_perma_inertia,1),0,int)
+        self.register_callback("axis","axisfriction",lambda val : self.dataChanged_UpdateSliderAndSpinbox(val,self.horizontalSlider_perma_friction,self.spinBox_perma_friction,1),0,int)
+        
+        self.register_callback("axis","pos",self.enc_pos_cb,0,int)
+        self.register_callback("axis","cpr",self.cpr_cb,0,int)
 
 
     def init_ui(self):
         try:
-            self.send_commands("axis",["cpr","pos","degrees", "fxratio"])
+            self.send_commands("axis",["cpr","pos","degrees", "fxratio", "idlespring", "axisdamper", "axisinertia", "axisfriction"])
         except:
             self.main.log("Error initializing Wheel tab")
             return False
@@ -76,7 +76,7 @@ class WheelUI(WidgetUI,CommunicationHandler):
     # Tab is currently shown
     def showEvent(self,event):
         self.init_ui() # update everything
-        self.timer.start(100)
+        self.timer.start(500)
 
     # Tab is hidden
     def hideEvent(self,event):
@@ -85,10 +85,10 @@ class WheelUI(WidgetUI,CommunicationHandler):
     # Timer interval reached
     def timer_cb(self):
         if self.cpr > 0:
-            self.send_command("axis","pos",self.wheel)
+            self.send_command("axis","pos",0, typechar='?')
         elif self.cpr == -1:
             # cpr invalid. Request cpr
-            self.send_command("axis","cpr",typechar='?',instance=self.wheel)
+            self.send_command("axis","cpr",0, typechar='?')
     
     #######################################################################################################
     #                                            Windows Event
@@ -108,20 +108,22 @@ class WheelUI(WidgetUI,CommunicationHandler):
             command (string, optional): the command to send to the board. Defaults to None.
         """
         newVal = val * factor
-        if(spinbox.value != newVal):
+        if(spinbox.value() != newVal):
             qtBlockAndCall(spinbox, spinbox.setValue,newVal)
         if(command):
             self.send_value(cls,command,val)
     
     def spinboxChanged_UpdateSlider(self, val : float, slider : QSlider, factor : float):
         newVal = int(round(val * factor))
-        if (slider.value != newVal) :
+        if (slider.value() != newVal) :
             slider.setValue(newVal)
             
     def dataChanged_UpdateSliderAndSpinbox(self,val : float,slider : QSlider,spinbox : QSpinBox,factor : float):
-        newval = int(round(val))
+        newval = int(round(val,1))
         qtBlockAndCall(slider, slider.setValue, newval)
-        self.sliderChanged_UpdateSpinbox(newval,spinbox,factor)
+        qtBlockAndCall(spinbox, spinbox.setValue,newval * factor)
+        
+        pass
         
     @throttle(50)
     def sliderChanged_UpdateLabel(self, val : int, label : QLabel, pattern :str, factor: float, cls : str=None, command : str=None):

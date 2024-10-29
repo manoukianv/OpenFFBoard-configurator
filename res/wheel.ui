@@ -605,7 +605,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSlider" name="horizontalSlider_damper_2">
+       <widget class="QSlider" name="horizontalSlider_perma_damper">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Independent damper is an always on damper effect to smooth out acceleration spikes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -618,7 +618,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QSpinBox" name="spinBox_damper">
+       <widget class="QSpinBox" name="spinBox_perma_damper">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -641,7 +641,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSlider" name="horizontalSlider_inertia_2">
+       <widget class="QSlider" name="horizontalSlider_perma_inertia">
         <property name="maximum">
          <number>255</number>
         </property>
@@ -651,7 +651,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QSpinBox" name="spinBox_inertia">
+       <widget class="QSpinBox" name="spinBox_perma_inertia">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -671,7 +671,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QSlider" name="horizontalSlider_friction_2">
+       <widget class="QSlider" name="horizontalSlider_perma_friction">
         <property name="maximum">
          <number>255</number>
         </property>
@@ -681,7 +681,7 @@
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QSpinBox" name="spinBox_friction">
+       <widget class="QSpinBox" name="spinBox_perma_friction">
         <property name="minimumSize">
          <size>
           <width>100</width>
