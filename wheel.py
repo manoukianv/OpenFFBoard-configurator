@@ -6,14 +6,17 @@ from PyQt6.QtWidgets import QCheckBox,QButtonGroup,QGridLayout, QSpinBox, QSlide
 from PyQt6 import uic
 from helper import res_path,classlistToIds,updateClassComboBox,qtBlockAndCall,throttle, map_infostring
 from PyQt6.QtCore import QTimer,QEvent
-import main
 from base_ui import WidgetUI,CommunicationHandler
+import main
+import effects_tuning_ui
 
 class WheelUI(WidgetUI,CommunicationHandler):
 
     def __init__(self, main: 'main.MainUi'=None, unique=0):
         WidgetUI.__init__(self, main, 'wheel.ui')
         CommunicationHandler.__init__(self)
+
+        self.main = main 
 
         self.cpr = -1
         self.springgain = 4
@@ -30,6 +33,9 @@ class WheelUI(WidgetUI,CommunicationHandler):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_cb)
+        
+        self.effect_tuning_dlg = effects_tuning_ui.AdvancedFFBTuneDialog(self)
+        self.main.maxaxischanged.connect(self.effect_tuning_dlg.set_max_axes)
         
         ### Event management with board message
         # General FFB Section
@@ -68,6 +74,10 @@ class WheelUI(WidgetUI,CommunicationHandler):
         self.horizontalSlider_inertia.valueChanged.connect(self.display_accel_cutoff_inertia)
         self.horizontalSlider_inertia.valueChanged.connect(lambda val : self.sliderChanged_UpdateSpinbox(val,self.doubleSpinBox_inertia,self.inertiagain/256,"fx", "inertia"))
         self.doubleSpinBox_inertia.valueChanged.connect(lambda val : self.spinboxChanged_UpdateSlider(val, self.horizontalSlider_inertia, 256/self.inertiagain))
+        
+        ### Event manager for UI button
+        self.pushButton_advanced_tuning.clicked.connect(self.effect_tuning_dlg.display)
+        
         
         ### Register event to received data from board
         # Callback used for axis incoming data
