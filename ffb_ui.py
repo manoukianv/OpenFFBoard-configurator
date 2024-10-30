@@ -130,7 +130,7 @@ class FfbUI(WidgetUI,CommunicationHandler):
 
             self.send_command("main","lsain",0,'?') # get analog types
             self.send_command("main","aintypes",0,'?') # get active analog
-
+            
             self.send_command("main","hidsendspd",0,'!') # get speed
             
         except:
@@ -178,6 +178,14 @@ class FfbUI(WidgetUI,CommunicationHandler):
             qtBlockAndCall(spinbox, spinbox.setValue,newVal)
         if(command):
             self.send_value("fx",command,val)
+            
+    def refresh_limit(self, slider : QSlider) :
+        if slider == self.horizontalSlider_damper :
+            self.display_speed_cutoff_damper(slider.value())
+        elif slider == self.horizontalSlider_friction :
+            self.display_speed_cutoff_friction(slider.value())
+        elif slider == self.horizontalSlider_inertia :
+            self.display_accel_cutoff_inertia(slider.value())
 
     def display_speed_cutoff_damper(self, gain):
         """Update the max rpm speed cutoff"""
@@ -203,6 +211,7 @@ class FfbUI(WidgetUI,CommunicationHandler):
     def updateSpinboxAndSlider(self,val,spinbox,slider : QSlider,factor):
         qtBlockAndCall(slider, slider.setValue, val)
         self.sliderChangedUpdateSpinbox(val,spinbox,factor)
+        self.refresh_limit(slider)
 
     def hidreportrate_cb(self,modes):
         self.comboBox_reportrate.blockSignals(True)

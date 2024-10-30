@@ -206,6 +206,14 @@ class WheelUI(WidgetUI,CommunicationHandler):
         inertia_accel = self.inertiagain * inertia_fw_internal_scaler * ((gain + 1) / 256)
         max_accel = 32767 / inertia_accel
         self.label_accel.setText(f"{max_accel:.0f}")
+        
+    def refresh_limit_ui(self, slider : QSlider) :
+        if slider == self.horizontalSlider_damper :
+            self.display_speed_cutoff_damper(slider.value())
+        elif slider == self.horizontalSlider_friction :
+            self.display_speed_cutoff_friction(slider.value())
+        elif slider == self.horizontalSlider_inertia :
+            self.display_accel_cutoff_inertia(slider.value())
             
     #######################################################################################################
     #                                            Board CallBack
@@ -225,6 +233,7 @@ class WheelUI(WidgetUI,CommunicationHandler):
         newval = int(round(val,1))
         qtBlockAndCall(slider, slider.setValue, newval)
         qtBlockAndCall(spinbox, spinbox.setValue,newval * factor)
+        self.refresh_limit_ui(slider)
         
     def dataChanged_UpdateSliderAndLabel(self,val : float,slider : QSlider, label : QLabel, pattern : str, factor : float):
         newval = int(round(val))

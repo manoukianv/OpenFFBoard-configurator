@@ -464,7 +464,7 @@ class MainUi(PyQt6.QtWidgets.QMainWindow, base_ui.WidgetUI, base_ui.Communicatio
                     
                     if classe_active["id"] == 1 :
                         tab_pos = self.tabWidget_main.currentIndex()
-                        classe = wheel.WheelUI (main=self, unique=classe_active["unique"])
+                        classe = wheel.WheelUI (main=self)
                         position = self.tabWidget_main.insertTab(tab_pos, classe, "SimWheel Summary")
                         self.select_tab(position)
                     
