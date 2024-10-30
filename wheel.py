@@ -12,7 +12,7 @@ import effects_tuning_ui
 
 class WheelUI(WidgetUI,CommunicationHandler):
 
-    def __init__(self, main: 'main.MainUi'=None, unique=0):
+    def __init__(self, main: 'main.MainUi'=None):
         WidgetUI.__init__(self, main, 'wheel.ui')
         CommunicationHandler.__init__(self)
 
