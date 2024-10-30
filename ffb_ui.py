@@ -131,8 +131,6 @@ class FfbUI(WidgetUI,CommunicationHandler):
             self.send_command("main","lsain",0,'?') # get analog types
             self.send_command("main","aintypes",0,'?') # get active analog
 
-
-            self.updateSliders()
             self.send_command("main","hidsendspd",0,'!') # get speed
             
         except:
@@ -142,7 +140,7 @@ class FfbUI(WidgetUI,CommunicationHandler):
 
     # Tab is currently shown
     def showEvent(self,event):
-        self.init_ui()
+        self.updateSliders()
 
     # Tab is hidden
     def hideEvent(self,event):
@@ -354,12 +352,6 @@ class FfbUI(WidgetUI,CommunicationHandler):
         self.horizontalSlider_CFq.setEnabled(qOn)
         self.doubleSpinBox_CFq.setEnabled(qOn)
         self.label_cffilter.setText(lbl)
-
-    def extract_scaler(self, gain_default, repl) :
-        infos = {key:value for (key,value) in [entry.split(":") for entry in repl.split(",")]}
-        if "scale" in infos:
-            gain_default = float(infos["scale"]) if float(infos["scale"]) > 0 else gain_default
-        return gain_default
 
     def updateGainScaler(self,slider : QSlider,spinbox : QSpinBox, gain):
         spinbox.setMaximum(gain)
