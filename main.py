@@ -463,6 +463,7 @@ class MainUi(PyQt6.QtWidgets.QMainWindow, base_ui.WidgetUI, base_ui.Communicatio
                     self.wrapper_status_bar.update_ffb_block_display(True)
                     
                     if classe_active["id"] == 1 :
+                        """If FFB is select, there is 1 FFB Class, and one Axis, display the wheel tab only in the case where id=1 (1 axis)"""
                         tab_pos = self.tabWidget_main.currentIndex()
                         classe = wheel.WheelUI (main=self)
                         position = self.tabWidget_main.insertTab(tab_pos, classe, "SimWheel Summary")
