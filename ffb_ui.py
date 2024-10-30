@@ -141,12 +141,12 @@ class FfbUI(WidgetUI,CommunicationHandler):
         return True
 
     # Tab is currently shown
-    # def showEvent(self,event):
-    #     self.timer.start(500)
+    def showEvent(self,event):
+        self.init_ui()
 
-    # # Tab is hidden
-    # def hideEvent(self,event):
-    #     self.timer.stop()
+    # Tab is hidden
+    def hideEvent(self,event):
+        pass
 
     def startTimer(self):
         self.timer.start(500)
