@@ -77,6 +77,8 @@ class WheelUI(WidgetUI,CommunicationHandler):
         
         ### Event manager for UI button
         self.pushButton_advanced_tuning.clicked.connect(self.effect_tuning_dlg.display)
+        self.pushButton_pushcenter.clicked.connect(lambda : self.send_command("axis","zeroenc",0))
+        
         
         
         ### Register event to received data from board
