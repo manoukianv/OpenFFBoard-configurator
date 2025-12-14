@@ -38,11 +38,13 @@ class EncoderOptions(QGroupBox):
             self.setTitle("SSI Settings (port SPI3 - exclusif usage)")
         else:
             layout.addWidget(QLabel("No settings"))
+            found = False
 
-        layout.setContentsMargins(5,0,5,0)
-        layout.setStretch(0,0)
-        layout.addWidget(self.widget)
-        self.setLayout(layout)
+        if found:
+            layout.setContentsMargins(5,0,5,0)
+            layout.setStretch(0,0)
+            layout.addWidget(self.widget)
+            self.setLayout(layout)
         
         if self.widget:            
             self.applyBtn = QPushButton("Apply")

@@ -44,10 +44,10 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
 
         self.pushButton_refresh.clicked.connect(self.get_ports)
         self.pushButton_connect.clicked.connect(self.serial_connect_button)
-        self.pushButton_send.clicked.connect(self.send_line)
-        self.lineEdit_cmd.returnPressed.connect(self.send_line)
-        self.pushButton_ok.clicked.connect(self.main_btn)
-
+        #self.pushButton_send.clicked.connect(self.send_line)
+        #self.lineEdit_cmd.returnPressed.connect(self.send_line)
+        self.pushButton_mainclasschange.clicked.connect(self.main_btn)
+        
         self.update()
 
     def showEvent(self, event): # pylint: disable=unused-argument, invalid-name
@@ -55,7 +55,6 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
 
         Connect the communication module with the history widget to load the board response.
         """
-        self.get_raw_reply().connect(self.serial_log)
         self.shown.emit()
 
     # Tab is hidden
@@ -65,7 +64,6 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
         Disconnect the communication module with the history widget
         to stop to log the board response.
         """
-        self.get_raw_reply().disconnect(self.serial_log)
         self.hidden.emit()
 
     def serial_log(self, txt):
@@ -74,7 +72,7 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
             txt = "\n".join(txt)
         else:
             txt = str(txt)
-        self.serialLogBox.append(txt)
+        #self.serialLogBox.append(txt)
 
     def send_line(self):
         """Read the command input text, display it in history widget and send it to the board."""
@@ -95,19 +93,28 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
         if self._serial.isOpen():
             self.pushButton_connect.setText(self.tr("Disconnect"))
             self.comboBox_port.setEnabled(False)
-            self.pushButton_refresh.setEnabled(False)
-            self.pushButton_send.setEnabled(True)
-            self.lineEdit_cmd.setEnabled(True)
+            self.pushButton_refresh.setVisible(False)
+            
+            self.label.setVisible(False)
+            self.comboBox_main.setVisible(False)
+            self.pushButton_mainclasschange.setVisible(False)
+                                          
+            #self.pushButton_send.setEnabled(True)
+            #self.lineEdit_cmd.setEnabled(True)
             self.connected.emit(True)
             self.get_main_classes()
         else:
             self.pushButton_connect.setText(self.tr("Connect"))
             self.comboBox_port.setEnabled(True)
-            self.pushButton_refresh.setEnabled(True)
-            self.pushButton_send.setEnabled(False)
-            self.lineEdit_cmd.setEnabled(False)
+            self.pushButton_refresh.setVisible(True)
+            
+            self.label.setVisible(False)
+            self.comboBox_main.setVisible(False)
+            self.pushButton_mainclasschange.setVisible(False)
+            #self.pushButton_send.setEnabled(False)
+            #self.lineEdit_cmd.setEnabled(False)
             self.connected.emit(False)
-            self.groupBox_system.setEnabled(False)
+            #self.groupBox_system.setEnabled(False)
 
     def serial_connect_button(self):
         """Check if it's not connected, and call start the serial connection."""
@@ -156,12 +163,13 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
                 port.vendorIdentifier(),
                 port.productIdentifier(),
             ) in self.OFFICIAL_VID_PID
-            name = port.portName() + " : " + port.description()
+            
 
             if supported_vid_pid and not name.startswith("cu."):
-                name += " (FFBoard device)"
+                name = F"FFBoard device ({port.portName()})"
             else:
-                name += " (Unsupported device)"
+                name = F"{port.description()} ({port.portName()})"
+                
             self.comboBox_port.addItem(name)
 
             if supported_vid_pid and not name.startswith("cu."):
@@ -169,13 +177,13 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
                 nb_compatible_device = nb_compatible_device + 1
                 self.comboBox_port.setItemData(
                     i,
-                    PyQt6.QtGui.QColor("green"),
+                    PyQt6.QtGui.QColor(0x00FF00),
                     PyQt6.QtCore.Qt.ItemDataRole.ForegroundRole,
                 )
             else:
                 self.comboBox_port.setItemData(
                     i,
-                    PyQt6.QtGui.QColor("red"),
+                    PyQt6.QtGui.QColor(0x990000),
                     PyQt6.QtCore.Qt.ItemDataRole.ForegroundRole,
                 )
 
@@ -210,7 +218,7 @@ class SerialChooser(base_ui.WidgetUI, base_ui.CommunicationHandler):
             # self.main.resetPort()
             self.groupBox_system.setEnabled(False)
             return
-        self.groupBox_system.setEnabled(True)
+        #self.groupBox_system.setEnabled(True)
 
         helper.updateClassComboBox(
             self.comboBox_main, self._class_ids, self._classes, self.main_id
